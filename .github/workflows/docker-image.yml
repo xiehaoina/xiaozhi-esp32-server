@@ -12,6 +12,9 @@ jobs:
   release:
     name: Release Docker images
     runs-on: self-hosted
+    env:
+      HTTP_PROXY: http://0.0.0.0:7890
+      HTTPS_PROXY: http://0.0.0.0:7890
     permissions:
       packages: write
       contents: write
@@ -66,3 +69,18 @@ jobs:
           tags: |
             r-veen.volces.com/vei/public/xiaozhi-server:web
           platforms: linux/amd64
+
+  restart:
+    name: Release Docker images
+    runs-on: self-hosted
+    permissions:
+      packages: write
+      contents: write
+      id-token: write
+      issues: write
+    steps:
+      - name: Restart docker compose
+        id: restart service
+        run: |
+          cd /root/xiaozhi-esp32-server/
+          docker-compose up -d
