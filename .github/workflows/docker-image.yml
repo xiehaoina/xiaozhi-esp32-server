@@ -33,7 +33,6 @@ jobs:
       - name: Clean up Docker resources
         run: |
           docker system prune -af
-          docker builder prune -af
 
       - name: Checkout code
         uses: actions/checkout@v4
@@ -71,10 +70,11 @@ jobs:
             r-veen.volces.com/vei/public/xiaozhi-server:web
           platforms: linux/amd64
 
-  restart:
-    name: Release Docker images
+  deploy:
+    name: Deploy Docker images
     runs-on: self-hosted
     needs: release
+    if: github.ref == 'refs/heads/main'
     permissions:
       packages: write
       contents: write
