@@ -18,7 +18,7 @@ class VADProvider(VADProviderBase):
             model="silero_vad",
             force_reload=False,
         )
-
+        self.stop_duration = 0
         self.decoder = opuslib_next.Decoder(16000, 1)
 
         # 处理空字符串的情况
@@ -30,9 +30,9 @@ class VADProvider(VADProviderBase):
             int(min_silence_duration_ms) if min_silence_duration_ms else 1000
         )
 
-    def is_vad(self, conn, opus_packet):
+    def is_vad(self, conn, data):
         try:
-            pcm_frame = self.decoder.decode(opus_packet, 960)
+            pcm_frame = self.decoder.decode(data, 960)
             conn.client_audio_buffer.extend(pcm_frame)  # 将新数据加入缓冲区
 
             # 初始化帧计数器
@@ -66,12 +66,13 @@ class VADProvider(VADProviderBase):
 
                 # 如果之前有声音，但本次没有声音，且与上次有声音的时间差已经超过了静默阈值，则认为已经说完一句话
                 if conn.client_have_voice and not client_have_voice:
-                    stop_duration = (
+                    self.stop_duration = (
                         time.time() * 1000 - conn.client_have_voice_last_time
                     )
-                    if stop_duration >= self.silence_threshold_ms:
+                    if self.stop_duration >= self.silence_threshold_ms:
                         conn.client_voice_stop = True
                 if client_have_voice:
+                    self.stop_duration = 0
                     conn.client_have_voice = True
                     conn.client_have_voice_last_time = time.time() * 1000
 
@@ -80,3 +81,13 @@ class VADProvider(VADProviderBase):
             logger.bind(tag=TAG).info(f"解码错误: {e}")
         except Exception as e:
             logger.bind(tag=TAG).error(f"Error processing audio packet: {e}")
+            
+    def is_eou(self, conn, text) :
+        """End of Utterance（话语结束检测），是基于语义理解的自动判断用户发言是否结束的技术"""
+        return conn.client_voice_stop 
+        
+    def get_silence_duration(self, conn) :
+        """返回语音静音时长，单位ms"""
+        if conn.client_voice_stop:
+            return self.stop_duration
+        return 0
