@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main  # 推送main分支时触发
+      - github-runner
     tags:
       - 'v*.*.*'  # 只在以 v 开头的标签推送时触发，例如 v1.0.0
   workflow_dispatch:
@@ -73,6 +74,7 @@ jobs:
   restart:
     name: Release Docker images
     runs-on: self-hosted
+    needs: release
     permissions:
       packages: write
       contents: write
