@@ -11,7 +11,7 @@ on:
 jobs:
   release:
     name: Release Docker images
-    runs-on: ecs-volc
+    runs-on: self-hosted
     permissions:
       packages: write
       contents: write
