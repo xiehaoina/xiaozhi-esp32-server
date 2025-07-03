@@ -33,7 +33,6 @@ jobs:
       - name: Clean up Docker resources
         run: |
           docker system prune -af
-          docker builder prune -af
 
       - name: Checkout code
         uses: actions/checkout@v4
