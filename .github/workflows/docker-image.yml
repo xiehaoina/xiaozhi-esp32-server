@@ -80,7 +80,7 @@ jobs:
       issues: write
     steps:
       - name: Restart docker compose
-        id: restart service
+        id: restart-service
         run: |
           cd /root/xiaozhi-esp32-server/
           docker-compose up -d
