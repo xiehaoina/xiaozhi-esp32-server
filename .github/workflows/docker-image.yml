@@ -13,11 +13,6 @@ jobs:
   release:
     name: Release Docker images
     runs-on: self-hosted
-    env:
-      no_proxy: localhost,127.0.0.1,::1
-      https_proxy: http://127.0.0.1:7890
-      http_proxy: http://127.0.0.1:7890
-      all_proxy: socks5h://127.0.0.1:7890
     permissions:
       packages: write
       contents: write
@@ -58,9 +53,6 @@ jobs:
           tags: |
             r-veen.volces.com/vei/public/xiaozhi-server:api
           platforms: linux/amd64
-          build-args: |
-            HTTP_PROXY=${{ env.HTTP_PROXY }}
-            HTTPS_PROXY=${{ env.HTTPS_PROXY }}
 
       # 构建 manager-api 镜像
       - name: Build and push manager-web
@@ -72,9 +64,6 @@ jobs:
           tags: |
             r-veen.volces.com/vei/public/xiaozhi-server:web
           platforms: linux/amd64
-          build-args: |
-            HTTP_PROXY=${{ env.HTTP_PROXY }}
-            HTTPS_PROXY=${{ env.HTTPS_PROXY }}
 
   restart:
     name: Release Docker images
