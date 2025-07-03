@@ -55,7 +55,7 @@ jobs:
         with:
           context: .
           file: Dockerfile-server
-          push: true
+          push: false
           tags: |
             r-veen.volces.com/vei/public/xiaozhi-server:api
           platforms: linux/amd64
@@ -66,7 +66,7 @@ jobs:
         with:
           context: .
           file: Dockerfile-web
-          push: true
+          push: false
           tags: |
             r-veen.volces.com/vei/public/xiaozhi-server:web
           platforms: linux/amd64
