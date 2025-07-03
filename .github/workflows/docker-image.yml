@@ -5,6 +5,7 @@ on:
     branches:
       - main  # 推送main分支时触发
       - github-runner
+
     tags:
       - 'v*.*.*'  # 只在以 v 开头的标签推送时触发，例如 v1.0.0
   workflow_dispatch:
@@ -18,7 +19,6 @@ jobs:
       https_proxy: http://127.0.0.1:7890
       http_proxy: http://127.0.0.1:7890
       all_proxy: socks5h://127.0.0.1:7890
-
     permissions:
       packages: write
       contents: write
