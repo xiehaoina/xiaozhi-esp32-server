@@ -98,6 +98,6 @@ jobs:
         id: restart-service
         run: |
           cd /root/xiaozhi-esp32-server/
-          sed -i "s/xiaozhi-server-api:.*/xiaozhi-server-api:'${{ needs.release.outputs.VERSION }}'/g" docker-compose.yaml
-          sed -i "s/xiaozhi-server-web:.*/xiaozhi-server-web:'${{ needs.release.outputs.VERSION }}'/g" docker-compose.yaml
+          sed -i "s/xiaozhi-server-api:.*/xiaozhi-server-api:${{ needs.release.outputs.VERSION }}/g" docker-compose.yaml
+          sed -i "s/xiaozhi-server-web:.*/xiaozhi-server-web:${{ needs.release.outputs.VERSION }}/g" docker-compose.yaml
           docker-compose up -d
