@@ -29,6 +29,13 @@ jobs:
         run: |
           docker system prune -af
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: r-veen.volces.com/vei
+          username: ${{ cr.username }}
+          password: ${{ cr.secret }}
+
       - name: Checkout code
         uses: actions/checkout@v4
 
@@ -40,10 +47,8 @@ jobs:
         run: |
           if [[ "$GITHUB_REF" =~ ^refs/tags/v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
             echo "VERSION=${BASH_REMATCH[1]}" >> $GITHUB_ENV
-            echo "IS_VERSION=true" >> $GITHUB_ENV
           else
-            echo "VERSION=latest" >> $GITHUB_ENV
-            echo "IS_VERSION=false" >> $GITHUB_ENV
+            echo "VERSION=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
           fi
 
       # 构建 xiaozhi-server 镜像
@@ -53,9 +58,9 @@ jobs:
           context: .
           file: Dockerfile-server
           network: host
-          push: false
+          push: push
           tags: |
-            r-veen.volces.com/vei/public/xiaozhi-server:api
+            r-veen.volces.com/vei/public/xiaozhi-server-api:${{ env.VERSION }}
           platforms: linux/amd64
 
       # 构建 manager-api 镜像
@@ -65,9 +70,9 @@ jobs:
           context: .
           file: Dockerfile-web
           network: host
-          push: false
+          push: push
           tags: |
-            r-veen.volces.com/vei/public/xiaozhi-server:web
+            r-veen.volces.com/vei/public/xiaozhi-server-web:${{ env.VERSION }}
           platforms: linux/amd64
 
   deploy:
