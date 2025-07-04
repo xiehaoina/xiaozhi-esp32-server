@@ -13,12 +13,7 @@ on:
 jobs:
   release:
     name: Release Docker images
-    runs-on: self-hosted
-    env:
-      no_proxy: localhost,127.0.0.1,::1
-      https_proxy: http://127.0.0.1:7890
-      http_proxy: http://127.0.0.1:7890
-      all_proxy: socks5h://127.0.0.1:7890
+    runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: write
@@ -34,18 +29,30 @@ jobs:
         run: |
           docker system prune -af
 
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        env:
+          DOCKER_CLIENT_TIMEOUT: 120  # 超时时间（秒）
+          COMPOSE_HTTP_TIMEOUT: 120
+        with:
+          registry: r-veen.volces.com
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.SECRET }}
+          debug: true
+
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
 
       - name: Extract version from tag
         id: get_version
         run: |
           if [[ "$GITHUB_REF" =~ ^refs/tags/v([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
             echo "VERSION=${BASH_REMATCH[1]}" >> $GITHUB_ENV
-            echo "IS_VERSION=true" >> $GITHUB_ENV
           else
-            echo "VERSION=latest" >> $GITHUB_ENV
-            echo "IS_VERSION=false" >> $GITHUB_ENV
+            echo "VERSION=$(date +%Y%m%d%H%M%S)" >> $GITHUB_ENV
           fi
 
       # 构建 xiaozhi-server 镜像
@@ -54,9 +61,10 @@ jobs:
         with:
           context: .
           file: Dockerfile-server
-          push: false
+          network: host
+          push: true
           tags: |
-            r-veen.volces.com/vei/public/xiaozhi-server:api
+            r-veen.volces.com/vei/public/xiaozhi-server-api:${{ env.VERSION }}
           platforms: linux/amd64
 
       # 构建 manager-api 镜像
@@ -65,9 +73,10 @@ jobs:
         with:
           context: .
           file: Dockerfile-web
-          push: false
+          network: host
+          push: true
           tags: |
-            r-veen.volces.com/vei/public/xiaozhi-server:web
+            r-veen.volces.com/vei/public/xiaozhi-server-web:${{ env.VERSION }}
           platforms: linux/amd64
 
   deploy:
@@ -85,4 +94,6 @@ jobs:
         id: restart-service
         run: |
           cd /root/xiaozhi-esp32-server/
+          sed -i "s/xiaozhi-server-api:.*/xiaozhi-server-api:'${{ env.VERSION }}'/g" docker-compose.yaml
+          sed -i "s/xiaozhi-server-web:.*/xiaozhi-server-web:'${{ env.VERSION }}'/g" docker-compose.yaml
           docker-compose up -d
