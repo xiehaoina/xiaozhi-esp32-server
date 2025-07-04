@@ -62,7 +62,7 @@ jobs:
           context: .
           file: Dockerfile-server
           network: host
-          push: push
+          push: true
           tags: |
             r-veen.volces.com/vei/public/xiaozhi-server-api:${{ env.VERSION }}
           platforms: linux/amd64
@@ -74,7 +74,7 @@ jobs:
           context: .
           file: Dockerfile-web
           network: host
-          push: push
+          push: true
           tags: |
             r-veen.volces.com/vei/public/xiaozhi-server-web:${{ env.VERSION }}
           platforms: linux/amd64
