@@ -31,9 +31,12 @@ jobs:
 
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
+        env:
+          DOCKER_CLIENT_TIMEOUT: 120  # 超时时间（秒）
+          COMPOSE_HTTP_TIMEOUT: 120
         with:
-          registry: r-veen.volces.com/vei
-          username: vei
+          registry: r-veen.volces.com
+          username: ${{ secrets.USERNAME }}
           password: ${{ secrets.SECRET }}
           debug: true
 
