@@ -94,4 +94,6 @@ jobs:
         id: restart-service
         run: |
           cd /root/xiaozhi-esp32-server/
+          sed -i "s/xiaozhi-server-api:.*/xiaozhi-server-api:'${{ env.VERSION }}'/g" docker-compose.yaml
+          sed -i "s/xiaozhi-server-web:.*/xiaozhi-server-web:'${{ env.VERSION }}'/g" docker-compose.yaml
           docker-compose up -d
